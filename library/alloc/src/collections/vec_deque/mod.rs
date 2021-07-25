@@ -2041,6 +2041,55 @@ impl<T> VecDeque<T> {
         self.extend(other.drain(..));
     }
 
+    /// Moves all the elements of `other` onto the front of `self`, leaving `other` empty.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the new number of elements in self overflows a `usize`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(vec_deque_prepend)]
+    /// use std::collections::VecDeque;
+    ///
+    /// let mut buf: VecDeque<_> = vec![1, 2].into_iter().collect();
+    /// let mut buf2: VecDeque<_> = vec![3, 4].into_iter().collect();
+    /// buf.prepend(&mut buf2);
+    /// assert_eq!(buf, [3, 4, 1, 2]);
+    /// assert_eq!(buf2, []);
+    /// ```
+    #[unstable(feature = "vec_deque_prepend", reason = "new API", issue = "100000")]
+    pub fn prepend(&mut self, other: &mut Self) {
+        let prev_len = self.len();
+        self.append(other);
+        self.rotate_right(self.len() - prev_len);
+    }
+
+    /// Extends `self` with the contents of `iter`, placing all the elements of `iter` at the
+    /// front of `self`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the new number of elements in self overflows a `usize`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(vec_deque_prepend)]
+    /// use std::collections::VecDeque;
+    ///
+    /// let mut buf: VecDeque<_> = vec![2, 4].into_iter().collect();
+    /// buf.extend_front([3, 5, 7]);
+    /// assert_eq!(buf, [3, 5, 7, 2, 4]);
+    /// ```
+    #[unstable(feature = "vec_deque_prepend", reason = "new API", issue = "100000")]
+    pub fn extend_front<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        let prev_len = self.len();
+        self.extend(iter);
+        self.rotate_right(self.len() - prev_len);
+    }
+
     /// Retains only the elements specified by the predicate.
     ///
     /// In other words, remove all elements `e` such that `f(&e)` returns false.
